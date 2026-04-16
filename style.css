@@ -1,0 +1,523 @@
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-gradient-start: #F5F1EB;
+            --bg-gradient-end: #E8E0F0;
+            --card-bg: #FFFFFF;
+            --card-bg-hover: #FFFCF8;
+            --primary: #6B5B95;
+            --primary-light: #8B7BB5;
+            --accent: #D4A574;
+            --text: #3D3D3D;
+            --text-secondary: #6B6B6B;
+            --border: #E0D8E8;
+            --glow-pink: rgba(212, 165, 116, 0.4);
+            --glow-purple: rgba(107, 91, 149, 0.3);
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* 粒子背景画布 */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .page { 
+            display: none; 
+            min-height: 100vh; 
+            padding: 20px; 
+            position: relative;
+            z-index: 1;
+        }
+        .page.active { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 卡片样式 - 直角矩形，细边框 */
+        .card {
+            background: var(--card-bg);
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            padding: 40px;
+            box-shadow: 0 2px 15px rgba(107, 91, 149, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            background: var(--card-bg-hover);
+            box-shadow: 0 0 30px var(--glow-purple);
+            transform: translateY(-2px);
+        }
+        
+        h1 { color: var(--primary); font-size: 2rem; margin-bottom: 20px; font-weight: 600; }
+        h2 { color: var(--primary-light); font-size: 1.5rem; margin-bottom: 15px; }
+        h3 { color: var(--primary); font-size: 1.2rem; margin-bottom: 10px; }
+        
+        /* 按钮样式 - 柔光hover */
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, #5A4A84 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(107, 91, 149, 0.2);
+        }
+        .btn:hover {
+            box-shadow: 0 0 25px var(--glow-purple), 0 0 40px rgba(212, 165, 116, 0.2);
+            transform: translateY(-2px);
+        }
+        .btn-secondary { 
+            background: transparent; 
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            box-shadow: none;
+        }
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 25px var(--glow-purple);
+        }
+        
+        /* 牌阵布局 - 全部居中 */
+        .tarot-table {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            padding: 20px;
+            width: 100%;
+        }
+        
+        /* 单张牌居中 */
+        .spread-layout-single {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* 三张牌横向排列 */
+        .spread-layout-three {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 8px;
+            flex-wrap: nowrap;
+            width: 100%;
+            min-width: 320px;
+        }
+        
+        /* 问题解决牌阵 - 竖向带箭头 */
+        .spread-layout-problem {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .problem-top-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: nowrap;
+        }
+        .problem-bottom-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: nowrap;
+        }
+        .arrow-down {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin: -5px 0;
+        }
+        .arrow-right {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        /* 爱情大十字 - 竖向十字架，间距紧凑 */
+        .spread-layout-love {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .love-top, .love-bottom {
+            display: flex;
+            justify-content: center;
+        }
+        .love-middle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: nowrap;
+        }
+        .arrow-vertical {
+            color: var(--primary);
+            font-size: 0.85rem;
+            margin: -10px 0;
+            line-height: 1;
+        }
+        
+        /* 卡牌样式 */
+        .tarot-card {
+            width: 100px;
+            height: 185px;
+            position: relative;
+            cursor: pointer;
+            perspective: 1000px;
+            flex-shrink: 0;
+        }
+        .tarot-card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .tarot-card.flipped .tarot-card-inner {
+            transform: rotateY(180deg);
+        }
+        .tarot-card-front, .tarot-card-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        .tarot-card-back {
+            background: linear-gradient(135deg, var(--primary) 0%, #5A4A84 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--primary-light);
+        }
+        .flip-hint {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.2);
+            padding: 3px 10px;
+            border-radius: 10px;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            animation: pulse-hint 2s ease-in-out infinite;
+            z-index: 10;
+        }
+        @keyframes pulse-hint {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        .tarot-card-back::before {
+            content: "";
+            width: 90%;
+            height: 90%;
+            background-image: url('images/image-1.jpeg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .tarot-card-front {
+            background: linear-gradient(135deg, #FFFCF8 0%, #FFF8F0 100%);
+            transform: rotateY(180deg);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2px;
+            overflow: hidden;
+        }
+        .tarot-card-front img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 2px;
+            display: block;
+            flex: 1;
+        }
+        .tarot-card-front .card-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #F5F1EB 0%, #E8E0F0 100%);
+            border-radius: 2px;
+            font-size: 2rem;
+            color: var(--primary);
+            flex: 1;
+        }
+        /* 翻牌后立即显示牌名和正逆位 - 填满牌面 */
+        .card-info-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 0;
+        }
+        .card-revealed-name {
+            color: #4A3A70;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.2;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .card-revealed-orientation {
+            color: #D48450;
+            font-size: 0.65rem;
+            text-align: center;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        .card-revealed-number {
+            color: #666;
+            font-size: 0.55rem;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        /* 位置标签在卡牌上方 */
+        .card-with-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .position-label {
+            background: var(--primary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        /* 解读区域 - 手风琴组件 */
+        .interpretation-area {
+            background: var(--card-bg);
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            padding: 25px;
+            margin-top: 30px;
+            max-width: 800px;
+            width: 100%;
+            text-align: left;
+            box-shadow: 0 2px 15px rgba(107, 91, 149, 0.1);
+            animation: fadeIn 0.5s ease;
+        }
+        .accordion {
+            margin-bottom: 10px;
+            border-radius: 4px;
+            overflow: hidden;
+            background: var(--bg-gradient-start);
+            border: 1px solid var(--border);
+        }
+        .accordion-header {
+            padding: 15px 20px;
+            background: linear-gradient(90deg, var(--primary) 0%, rgba(107, 91, 149, 0.1) 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .accordion-header:hover {
+            background: linear-gradient(90deg, var(--primary) 0%, rgba(107, 91, 149, 0.2) 100%);
+        }
+        .accordion-header::after {
+            content: "+";
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        .accordion.active .accordion-header::after {
+            transform: rotate(45deg);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .accordion.active .accordion-content {
+            max-height: 2000px;
+        }
+        .accordion-body {
+            padding: 20px;
+        }
+        .interpretation-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        .interpretation-item:hover {
+            box-shadow: 0 0 15px var(--glow-purple);
+        }
+        .overall-interpretation {
+            background: linear-gradient(135deg, rgba(107, 91, 149, 0.05) 0%, rgba(212, 165, 116, 0.05) 100%);
+            padding: 20px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            line-height: 1.8;
+            color: var(--text);
+        }
+        
+        /* 加载画面样式 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(245, 241, 235, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .loading-content {
+            text-align: center;
+            padding: 40px;
+        }
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loading-text {
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .loading-subtext {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+            100% { content: ''; }
+        }
+        .lucky-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .lucky-item {
+            background: var(--bg-gradient-start);
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        .lucky-item:hover {
+            box-shadow: 0 0 15px var(--glow-pink);
+            transform: translateY(-2px);
+        }
+        .lucky-label {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .lucky-value {
+            color: var(--accent);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        /* 引导文本样式 */
+        .guide-text {
+            background: linear-gradient(90deg, rgba(107, 91, 149, 0.1) 0%, transparent 100%);
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            margin: 20px 0;
+            color: var(--text-secondary);
+        }
+        
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .tarot-card { width: 85px; height: 140px; }
+            .tarot-card-front { padding: 4px 3px 3px 3px; justify-content: space-between; }
+            .tarot-card-front img { max-height: 88px; }
+            .card-revealed-name { font-size: 0.7rem; margin-top: 2px; color: #4A3A70; }
+            .card-revealed-orientation { font-size: 0.6rem; color: #D48450; }
+            .card-revealed-number { font-size: 0.5rem; }
+            .position-label { font-size: 0.6rem; padding: 2px 6px; }
+            .love-middle { gap: 6px; }
+            .problem-top-row { gap: 8px; }
+            .problem-bottom-row { gap: 5px; }
+            .lucky-info { grid-template-columns: 1fr; }
+            .card { padding: 15px; }
+            .btn { padding: 8px 15px; font-size: 0.85rem; }
+        }
+    
